@@ -1,0 +1,94 @@
+let tijdLicht = 0;
+let positie = 0;
+let niveau = 0;
+let tijd = 0;
+let distanceInCm = 0;
+let distance = 0;
+let driving = false;
+
+
+// De code om de wekker aan te zetten.
+input.buttonsAB.onEvent(ButtonEvent.Click, function () {
+    music.playMelody("F G A G B - - - ", 120)
+    loops.pause(tijd)
+    control.runInParallel(function () {
+        // zet driving op true
+        driving=true;
+        music.siren.loop()
+        crickit.motor1.run(20)
+        crickit.motor2.run(20)
+        light.setAll(0xff0000)
+        console.log("Wekker aan")
+    }​​​​​​​​)
+}​​​​​​​​)
+// De code om het geluid harder te zetten.
+input.buttonB.onEvent(ButtonEvent.Click, function () {
+    niveau += 25;
+    music.setVolume(niveau)
+    for (let index = 0; index <= positie; index++) {
+        light.setPixelColor(index, 0xffffff)
+    }
+    positie += 1;
+    loops.pause(500)
+    light.clear()
+    console.log(`Volume ${​​​​​​​​niveau}​​​​​​​​/255`)
+}​​​​​​​​)
+// De code om het geluid te resetten.
+input.buttonB.onEvent(ButtonEvent.LongClick, function () {
+    music.setVolume(25)
+    positie = 0;
+    niveau = 0;
+    light.setPixelColor(0, 0x00ffff)
+    loops.pause(500)
+    light.clear()
+    console.log(`Volume ${​​​​​​​​niveau}​​​​​​​​/255`)
+}​​​​​​​​)
+// De code om de tijd van de wekker te resetten.
+input.buttonA.onEvent(ButtonEvent.LongClick, function () {
+    tijd = 0;
+    tijdLicht = 0;
+    light.setPixelColor(0, 0x00ff00)
+    loops.pause(500)
+    light.clear()
+    console.log(`Je wekker staat ingesteld op ${​​​​​​​​tijd}​​​​​​​​ milliseconden (1 uur = 3600000milliseconden reken maar lekker zelf uit).`)
+}​​​​​​​​)
+// De code om de tijd van de wekker aan te passen.
+input.buttonA.onEvent(ButtonEvent.Click, function () {
+    for (let index2 = 0; index2 <= tijdLicht; index2++) {
+        light.setPixelColor(index2, 0x00ff00)
+    }
+    tijd = tijd + 500;
+    loops.pause(500)
+    light.clear()
+    tijdLicht += 1;
+    console.log(`Je wekker staat ingesteld op ${​​​​​​​​tijd}​​​​​​​​ milliseconden (1 uur = 3600000milliseconden reken maar lekker zelf uit).`)
+}​​​​​​​​)
+// De code om de motoren, licht en muziek uit te
+// zetten.
+// terweil driving true is ga rijden
+while (driving) {
+        // if distance in cm is kleiner dan of gelijk aan 2 ga naar links
+        if (distance <= 2) {
+            crickit.motor1.setInverted(true);
+            crickit.motor1.run(100);
+            crickit.motor2.run(100);
+            loops.pause(100)
+            crickit.motor1.setInverted(false);
+        }
+        // zolang de distance groter is dan 2. ga rijden. 
+        else {
+        control.runInParallel(function () {
+            crickit.motor1.run(100)
+            crickit.motor2.run(100)
+        })
+        
+            pins.A2.digitalWrite(false)
+            control.waitMicros(2)
+            pins.A2.digitalWrite(true)
+            control.waitMicros(10)
+            pins.A2.digitalWrite(false)
+            distance = pins.A1.pulseIn(PulseValue.High) / 58;
+            light.graph(distance, 30)
+
+        }
+    }
